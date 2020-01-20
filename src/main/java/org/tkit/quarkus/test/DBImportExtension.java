@@ -18,8 +18,6 @@ package org.tkit.quarkus.test;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.specification.RequestSpecification;
-import org.eclipse.microprofile.config.Config;
-import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.extension.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,8 +199,7 @@ public class DBImportExtension implements BeforeTestExecutionCallback, AfterTest
      * @return the request specification.
      */
     public static RequestSpecification requestSpecification() {
-        Config config = ConfigProvider.getConfig();
-        String url = config.getOptionalValue("tkit.test.dbimport.url", String.class).orElse("http://docker:8811/");
+        String url = System.getProperty("tkit.test.dbimport.url","http://docker:8811/" );
         return new RequestSpecBuilder().setBaseUri(url).build();
     }
 
