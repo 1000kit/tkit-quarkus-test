@@ -57,6 +57,174 @@ APP_DOCKER_IMAGE = new FixedHostPortGenericContainer(image)
         .waitingFor(Wait.forLogMessage(".*Installed features:.*", 1))
         .withLogConsumer(TestContainerLogger.create("app"));
 ```
+
+## Pipeline and tests
+
+1. Build project, run the unit test and build native image: 
+    * mvn clean package -Pnative (1) 
+2. Build the docker image
+    * docker build
+3. Run the integration test
+    * mvn failsafe:integration-test
+4. Push the docker image 
+    * docker push
+    
+(1) build native image with a docker image: 
+    * mvn clean package -Pnative -Dquarkus.native.container-build=true        
+
+## How to write the tests
+
+Create abstract test class which will set up the docker test environment. The default location of the docker compose file
+is `src/test/resources/docker-compose.yaml`
+
+```java
+public abstract class AbstractTest {
+    // load the docker compose file from src/test/resources/docker-compose.yaml
+    public static DockerTestEnvironment ENVIRONMENT = new DockerTestEnvironment();
+     // Starts the containers before the tests
+    static {        
+        // star the docker test environment
+        ENVIRONMENT.start();
+        // update the rest assured port for the integration test
+        DockerComposeService service = ENVIRONMENT.getService("tkit-parameter");
+        if (service != null) {
+            RestAssured.port = service.getPort(8080);
+        }
+    }
+}
+```
+Create a common test for unit and integration test
+```java
+public class ServiceRestControllerT extends AbstractTest {
+
+    @Test
+    public void serviceTest() {
+        // ...        
+    }
+}
+```
+Unit test
+```java
+@QuarkusTest
+public class ServiceRestControllerTest extends ServiceRestControllerT {
+
+}
+```
+Integration test
+```java
+public class ServiceRestControllerTestIT extends ServiceRestControllerT {
+
+}
+```
+
+## Maven settings
+Unit test maven plugin
+```xml
+<plugin>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <version>${surefire-plugin.version}</version>
+    <configuration>
+        <systemProperties>
+            <com.arjuna.ats.arjuna.objectstore.objectStoreDir>${project.build.directory}/jta</com.arjuna.ats.arjuna.objectstore.objectStoreDir>
+            <ObjectStoreEnvironmentBean.objectStoreDir>${project.build.directory}/jta</ObjectStoreEnvironmentBean.objectStoreDir>
+            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+        </systemProperties>
+    </configuration>
+</plugin>
+```
+Integration test maven plugin
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-failsafe-plugin</artifactId>
+    <version>${surefire-plugin.version}</version>
+    <executions>
+        <execution>
+            <id>native</id>
+            <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+            </goals>
+            <phase>integration-test</phase>
+        </execution>
+    </executions>
+    <configuration>
+        <systemPropertyVariables>
+            <test.integration>true</test.integration>
+        </systemPropertyVariables>
+    </configuration>                
+</plugin>
+```
+The system property `<test.integration>true</test.integration>` activate the integration test.
+
+## Docker labels
+
+| label   | values | default | description |
+|---|---|---|---|
+| test.integration=true | `boolean` | `true` | enable the docker for the integration test |
+| test.unit=true | `boolean` | `true` | enable the docker for the unit test |
+| test.image.pull=true | `boolean` | `true` | pull docker image before test |
+| test.Wait.forLogMessage.regex= | `string` | `null` | regex of the WaitStrategy for log messages |
+| test.Wait.forLogMessage.times=1 | `int` | `1` | the number of times the pattern is expected in the WaitStrategy |
+| test.Log=true | `boolean` | `true` | enabled log of the docker container |
+| test.priority=100 | `int` | `100` | start priority |
+| test.property.<name>=<value> | `string` | `null` | set the system property with <name> and <value> in the tests |
+| test.env.<name>=<value> | `string` | `null` | set the environment variable with <name> and <value> in the docker container |
+
+The value of the test.property.* or test.env.* supported this syntax:
+* simple value: `123` result: 123
+* host of the service: `${host:<service>}` the host of the service `<service>`
+* port of the service: `${port:<service>:<port>}` the port number of the `<port>` of the `<service>` service
+* url of the service: `${url:<service>:<port>}` the url of the service `http://<service>:<port>`
+* environment value: `${env:<name>}` the environment value 
+* system property value: `${prop:<name>}` the system property value
+ 
+ Example:
+ ```bash
+test.property.quarkus.datasource.url=jdbc:postgresql://${host:postgres}:${port:postgres:5432}/p6?sslmode=disable
+```
+The system property `quarkus.datasource.url` will be set to 
+`jdbc:postgresql://localhost:125432/p6?sslmode=disable` if the docker image host of the 
+postgres is `localhost` and tet containers dynamic port ot the container port `5432` is set to
+`125432` value.
+
+## Docker compose example
+
+```yaml
+version: "2"
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:10.5
+    environment:
+      POSTGRES_DB: "p6"
+      POSTGRES_USER: "p6"
+      POSTGRES_PASSWORD: "p6"
+    labels:
+      - "test.Wait.forLogMessage.regex=.*database system is ready to accept connections.*\\s"
+      - "test.Wait.forLogMessage.times=2"
+      - "test.log=true"
+      - "test.property.quarkus.datasource.url=jdbc:postgresql://${host:postgres}:${port:postgres:5432}/p6?sslmode=disable"
+    ports:
+      - "5433:5433"
+    networks:
+      - test
+  tkit-parameter:
+    container_name: tkit-parameter
+    image: quay.io/tkit/tkit-parameter:latest
+    ports:
+      - "8080:8080"
+    labels:
+      - "test.unit=false"
+      - "test.priority=101"
+      - "test.image.pull=false"
+      - "test.env.QUARKUS_DATASOURCE_URL=jdbc:postgresql://postgres:5432/p6?sslmode=disable"
+    networks:
+      - test
+networks:
+  test:
+```
+
 ### Create a release
 
 ```bash
