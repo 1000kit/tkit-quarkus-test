@@ -18,17 +18,22 @@ In a @Before hook of your test method, tkit checks if a @WithDBData annotation i
 given file to the dbimport rest service.
 
 
-Add the dbimport docker image to the test containers 
-```java
-DB_IMPORT = new FixedHostPortGenericContainer("quay.io/tkit/dbimport:master")
-           .withFixedExposedPort(8811, 8080)
-           .withNetwork(NETWORK)
-           .withNetworkAliases("dbimport")
-           .withEnv("DB_PASSWORD", "parameters")
-           .withEnv("DB_USERNAME", "parameters")
-           .withEnv("DB_URL", "jdbc:postgresql://parameters-db:5432/parameters?sslmode=disable")
-           .waitingFor(Wait.forLogMessage(".*Installed features:.*", 1))
-           .withLogConsumer(TestContainerLogger.create("dbimport"));
+Add the dbimport docker image to the test containers docker-compose.yml file
+```yaml
+  tkit-parameter-db-import:
+    container_name: tkit-parameter-db-import
+    image: quay.io/tkit/dbimport:master
+    environment:
+      DB_URL: "jdbc:postgresql://tkit-parameter-db:5432/parameters?sslmode=disable"
+      DB_USERNAME: "parameters"
+      DB_PASSWORD: "parameters"
+    ports:
+      - "8811:8080"
+    labels:
+      - "test.Wait.forLogMessage.regex=.*Installed features:.*"
+      - "test.Wait.forLogMessage.times=1"
+      - "test.log=true"
+      - "test.property.tkit.test.dbimport.url=${url:tkit-parameter-db-import:8080}"
 ```
 
 Put the annotation to the test method
@@ -46,16 +51,6 @@ public void testImportData() {
             .then()
             .statusCode(Response.Status.OK.getStatusCode());
 }
-```
-
-## Test containers logger
-```java
-APP_DOCKER_IMAGE = new FixedHostPortGenericContainer(image)
-        .withFixedExposedPort(8080, 8080)
-        .withNetwork(NETWORK)
-        .withNetworkAliases("app")
-        .waitingFor(Wait.forLogMessage(".*Installed features:.*", 1))
-        .withLogConsumer(TestContainerLogger.create("app"));
 ```
 
 ## Pipeline and tests
