@@ -33,7 +33,7 @@ Add the dbimport docker image to the test containers docker-compose.yml file
       - "test.Wait.forLogMessage.regex=.*Installed features:.*"
       - "test.Wait.forLogMessage.times=1"
       - "test.log=true"
-      - "test.property.tkit.test.dbimport.url=${url:tkit-parameter-db-import:8080}"
+      - "test.property.tkit.test.dbimport.url=$${url:tkit-parameter-db-import:8080}"
 ```
 
 Put the annotation to the test method
@@ -168,15 +168,15 @@ The system property `<test.integration>true</test.integration>` activate the int
 
 The value of the test.property.* or test.env.* supported this syntax:
 * simple value: `123` result: 123
-* host of the service: `${host:<service>}` the host of the service `<service>`
-* port of the service: `${port:<service>:<port>}` the port number of the `<port>` of the `<service>` service
-* url of the service: `${url:<service>:<port>}` the url of the service `http://<service>:<port>`
-* environment value: `${env:<name>}` the environment value 
-* system property value: `${prop:<name>}` the system property value
+* host of the service: `$${host:<service>}` the host of the service `<service>`
+* port of the service: `$${port:<service>:<port>}` the port number of the `<port>` of the `<service>` service
+* url of the service: `$${url:<service>:<port>}` the url of the service `http://<service>:<port>`
+* environment value: `$${env:<name>}` the environment value 
+* system property value: `$${prop:<name>}` the system property value
  
  Example:
  ```bash
-test.property.quarkus.datasource.url=jdbc:postgresql://${host:postgres}:${port:postgres:5432}/p6?sslmode=disable
+test.property.quarkus.datasource.url=jdbc:postgresql://$${host:postgres}:$${port:postgres:5432}/p6?sslmode=disable
 ```
 The system property `quarkus.datasource.url` will be set to 
 `jdbc:postgresql://localhost:125432/p6?sslmode=disable` if the docker image host of the 
@@ -199,7 +199,7 @@ services:
       - "test.Wait.forLogMessage.regex=.*database system is ready to accept connections.*\\s"
       - "test.Wait.forLogMessage.times=2"
       - "test.log=true"
-      - "test.property.quarkus.datasource.url=jdbc:postgresql://${host:postgres}:${port:postgres:5432}/p6?sslmode=disable"
+      - "test.property.quarkus.datasource.url=jdbc:postgresql://$${host:postgres}:$${port:postgres:5432}/p6?sslmode=disable"
     ports:
       - "5433:5433"
     networks:

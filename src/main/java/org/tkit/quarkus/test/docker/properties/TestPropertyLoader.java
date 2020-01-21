@@ -35,7 +35,7 @@ public class TestPropertyLoader {
         BUILDER.put("env", TestEnvProperty::createTestProperty);
         BUILDER.put("prop", TestPropProperty::createTestProperty);
     }
-    static final String PATTERN = "\\$\\{(.*?)}";
+    static final String PATTERN = "\\$\\$\\{(.*?)}";
     static final Pattern REF_PATTERN = Pattern.compile(PATTERN);
 
     private TestPropertyLoader() {
