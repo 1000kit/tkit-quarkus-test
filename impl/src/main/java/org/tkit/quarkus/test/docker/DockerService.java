@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 lorislab.org.
+ * Copyright 2020 tkit.org.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.tkit.quarkus.test.docker;
 
-package org.tkit.quarkus.test.docker.properties;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@FunctionalInterface
-public interface TestPropertyCreator {
+/**
+ * The docker service
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface DockerService {
 
-    TestProperty createTestProperty(String name, String[] data);
+    /**
+     * The name of docker service in the docker compose file.
+     *
+     * @return name of docker service in the docker compose file.
+     */
+    String value();
 }

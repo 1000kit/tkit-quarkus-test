@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 lorislab.org.
+ * Copyright 2020 tkit.org.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,28 +18,19 @@ package org.tkit.quarkus.test.docker.properties;
 
 import org.tkit.quarkus.test.docker.DockerTestEnvironment;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+public class TestEnvProperty extends TestProperty {
 
-public class TestGroupProperty extends TestProperty {
-
-    MessageFormat message;
-
-    List<TestProperty> testProperties = new ArrayList<>();
+    String key;
 
     @Override
     public String getValue(DockerTestEnvironment environment) {
-        List<String> parameters = testProperties.stream().map(c -> c.getValue(environment)).collect(Collectors.toList());
-        return message.format(parameters.toArray(new Object[]{}), new StringBuffer(), null).toString();
+      return System.getenv(key);
     }
 
-    public static TestGroupProperty createTestProperty(String name, String data, List<TestProperty> testProperties) {
-        TestGroupProperty r = new TestGroupProperty();
+    public static TestEnvProperty createTestProperty(String name, String[] data) {
+        TestEnvProperty r = new TestEnvProperty();
         r.name = name;
-        r.message = new MessageFormat(data);
-        r.testProperties = testProperties;
+        r.key = data[1];
         return r;
     }
 }

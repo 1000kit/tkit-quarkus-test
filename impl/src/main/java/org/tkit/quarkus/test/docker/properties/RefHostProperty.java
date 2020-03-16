@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 lorislab.org.
+ * Copyright 2020 tkit.org.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,23 @@
 
 package org.tkit.quarkus.test.docker.properties;
 
+import org.tkit.quarkus.test.docker.DockerComposeService;
 import org.tkit.quarkus.test.docker.DockerTestEnvironment;
 
-public class TestPropProperty extends TestProperty {
+public class RefHostProperty extends TestProperty {
 
-    String key;
-
-    String defaultValue;
+    String service;
 
     @Override
     public String getValue(DockerTestEnvironment environment) {
-      return System.getProperty(key, defaultValue);
+        DockerComposeService dcs = environment.getService(service);
+        return dcs.getHost();
     }
 
-    public static TestPropProperty createTestProperty(String name, String[] data) {
-        TestPropProperty r = new TestPropProperty();
+    public static RefHostProperty createTestProperty(String name, String[] data) {
+        RefHostProperty r = new RefHostProperty();
         r.name = name;
-        r.key = data[1];
-        if (data.length > 2) {
-            r.defaultValue = data[2];
-        }
+        r.service = data[1];
         return r;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 lorislab.org.
+ * Copyright 2020 tkit.org.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.tkit.quarkus.test.docker.properties;
 
-import org.tkit.quarkus.test.docker.DockerTestEnvironment;
+@FunctionalInterface
+public interface TestPropertyCreator {
 
-public class TestValueProperty extends TestProperty {
-
-    String value;
-
-    @Override
-    public String getValue(DockerTestEnvironment environment) {
-      return value;
-    }
-
-    public static TestValueProperty createTestProperty(String name, String data) {
-        TestValueProperty r = new TestValueProperty();
-        r.name = name;
-        r.value = data;
-        return r;
-    }
+    TestProperty createTestProperty(String name, String[] data);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 lorislab.org.
+ * Copyright 2020 tkit.org.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,16 @@ package org.tkit.quarkus.test.docker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.Network;
-import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 import org.testcontainers.shaded.org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * The docker test environment.
+ */
 public class DockerTestEnvironment {
 
     private static final Logger log = LoggerFactory.getLogger(DockerTestEnvironment.class);
@@ -60,7 +61,8 @@ public class DockerTestEnvironment {
         boolean integrationTest = Boolean.getBoolean("test.integration");
 
         Yaml yaml = new Yaml();
-        try (FileInputStream fileInputStream = FileUtils.openInputStream(dockerComposeFile)) {
+
+        try (InputStream fileInputStream = Files.newInputStream(dockerComposeFile.toPath())) {
             Map<String, Object> map = yaml.load(fileInputStream);
             Object services = map.get("services");
             if (services instanceof Map) {
@@ -94,4 +96,5 @@ public class DockerTestEnvironment {
     public void stop() {
         containers.values().parallelStream().forEach(DockerComposeService::stop);
     }
+
 }

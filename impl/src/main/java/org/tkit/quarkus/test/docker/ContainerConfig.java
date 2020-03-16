@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 lorislab.org.
+ * Copyright 2020 tkit.org.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.tkit.quarkus.test.docker;
 
 import org.tkit.quarkus.test.docker.properties.TestProperty;
 import org.tkit.quarkus.test.docker.properties.TestPropertyLoader;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +35,9 @@ public class ContainerConfig {
 
     public boolean unitTest = true;
 
-    public boolean imagePull = true;
+    public PullPolicy imagePull = PullPolicy.DEFAULT;
+
+    public Duration imagePullDuration;
 
     public Integer priority = DEFAULT_PRIORITY;
 
@@ -85,7 +87,10 @@ public class ContainerConfig {
             unitTest = getLabelBoolean(labels, "test.unit", true);
 
             // image pull policy
-            imagePull = getLabelBoolean(labels, "test.image.pull", true);
+            imagePull = PullPolicy.valueOf(labels.getOrDefault("test.image.pull", PullPolicy.DEFAULT.name()));
+            if (imagePull == PullPolicy.MAX_AGE) {
+                imagePullDuration = Duration.parse(labels.getOrDefault("test.image.pull.max_age", "PT10"));
+            }
 
             // wait log rule
             waitLogRegex = labels.getOrDefault("test.Wait.forLogMessage.regex", null);
@@ -147,5 +152,15 @@ public class ContainerConfig {
         return Integer.parseInt(
                 labels.getOrDefault(name, Integer.toString(defaultValue))
         );
+    }
+
+
+    public enum PullPolicy {
+
+        DEFAULT,
+
+        ALWAYS,
+
+        MAX_AGE
     }
 }
