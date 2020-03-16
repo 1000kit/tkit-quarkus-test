@@ -1,5 +1,9 @@
 # tkit-quarkus-test
 
+Quarkus versions:
+* Tested with Quarkus 1.3.0.Final.
+* For Quarkus 1.2.1.Final or older use [0.x version](https://gitlab.com/1000kit/quarkus/tkit-quarkus-test/-/tree/0.x)
+
 tkit quarkus test extension
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-green?style=for-the-badge&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0)
@@ -56,16 +60,16 @@ public void testImportData() {
 ## Pipeline and tests
 
 1. Build project, run the unit test and build native image: 
-    * mvn clean package -Pnative (1) 
+    * mvn clean package -Pnative -Dquarkus.native.container-build=true (1) 
 2. Build the docker image
     * docker build
 3. Run the integration test
-    * mvn failsafe:integration-test
+    * mvn failsafe:integration-test failsafe:verify
 4. Push the docker image 
     * docker push
     
-(1) build native image with a docker image: 
-    * mvn clean package -Pnative -Dquarkus.native.container-build=true        
+(1) build native image on Linux: 
+    * mvn clean package -Pnative        
 
 ## How to write the tests
 
@@ -73,17 +77,16 @@ Create abstract test class which will set up the docker test environment. The de
 is `src/test/resources/docker-compose.yaml`
 
 ```java
+@QuarkusTestResource(DockerComposeTestResource.class)
 public abstract class AbstractTest {
-    // load the docker compose file from src/test/resources/docker-compose.yaml
-    public static DockerTestEnvironment ENVIRONMENT = new DockerTestEnvironment();
-     // Starts the containers before the tests
-    static {        
-        // star the docker test environment
-        ENVIRONMENT.start();
-        // update the rest assured port for the integration test
-        DockerComposeService service = ENVIRONMENT.getService("tkit-parameter");
-        if (service != null) {
-            RestAssured.port = service.getPort(8080);
+
+    @DockerService("quarkus-test")
+    protected DockerComposeService app;
+
+    @BeforeEach
+    public void init() {
+        if (app != null) {
+            RestAssured.port = app.getPort(8080);
         }
     }
 }
@@ -107,7 +110,8 @@ public class ServiceRestControllerTest extends ServiceRestControllerT {
 ```
 Integration test
 ```java
-public class ServiceRestControllerTestIT extends ServiceRestControllerT {
+@DockerComposeTest
+public class DeploymentRestControllerTestIT extends DeploymentRestControllerT {
 
 }
 ```
@@ -154,11 +158,14 @@ The system property `<test.integration>true</test.integration>` activate the int
 
 ## Docker labels
 
+## Docker labels
+
 | label   | values | default | description |
 |---|---|---|---|
 | test.integration=true | `boolean` | `true` | enable the docker for the integration test |
 | test.unit=true | `boolean` | `true` | enable the docker for the unit test |
-| test.image.pull=true | `boolean` | `true` | pull docker image before test |
+| test.image.pull=DEFAULT | `string` | `DEFAULT,ALWAYS,MAX_AGE` | pull docker image before test |
+| test.image.pull.max_age | `string` | `PT10` | only for the `MAX_AGE` pull docker image before test if older than duration. Default: 10s |
 | test.Wait.forLogMessage.regex= | `string` | `null` | regex of the WaitStrategy for log messages |
 | test.Wait.forLogMessage.times=1 | `int` | `1` | the number of times the pattern is expected in the WaitStrategy |
 | test.Log=true | `boolean` | `true` | enabled log of the docker container |
@@ -171,8 +178,8 @@ The value of the test.property.* or test.env.* supported this syntax:
 * host of the service: `$${host:<service>}` the host of the service `<service>`
 * port of the service: `$${port:<service>:<port>}` the port number of the `<port>` of the `<service>` service
 * url of the service: `$${url:<service>:<port>}` the url of the service `http://<service>:<port>`
-* environment value: `$${env:<name>}` the environment value 
-* system property value: `$${prop:<name>}` the system property value
+* system property: `$${prop:<name>`}
+* environment variable: `${env:<name>`}
  
  Example:
  ```bash

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 lorislab.org.
+ * Copyright 2020 tkit.org.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,16 @@
 
 package org.tkit.quarkus.test.docker;
 
+import org.tkit.quarkus.test.docker.properties.TestProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.images.ImagePullPolicy;
+import org.testcontainers.images.PullPolicy;
 import org.testcontainers.utility.MountableFile;
-import org.tkit.quarkus.test.TestContainerLogger;
-import org.tkit.quarkus.test.docker.properties.TestProperty;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DockerComposeService {
@@ -73,7 +71,7 @@ public class DockerComposeService {
 
         // update properties
         Map<String, String> prop = createValues(environment, config.properties);
-        log.info("Service: '{}' update test properties: {}", config.name, prop);
+        System.out.println("Service: '{}' update test properties: {}");
         prop.forEach(System::setProperty);
     }
 
@@ -119,9 +117,17 @@ public class DockerComposeService {
             result.withNetwork(network).withNetworkAliases(config.name);
 
             // image pull policy
-            if (!config.imagePull) {
-                result.withImagePullPolicy((ImagePullPolicy) imageName -> false);
+            switch ( config.imagePull) {
+                case ALWAYS:
+                    result.withImagePullPolicy(PullPolicy.alwaysPull());
+                    break;
+                case MAX_AGE:
+                    result.withImagePullPolicy(PullPolicy.ageBased(config.imagePullDuration));
+                    break;
+                case DEFAULT:
+                    result.withImagePullPolicy(PullPolicy.defaultPolicy());
             }
+
             // wait log rule
             if (config.waitLogRegex != null) {
                 result.waitingFor(Wait.forLogMessage(config.waitLogRegex, config.waitLogTimes));
@@ -129,7 +135,7 @@ public class DockerComposeService {
 
             // update log flag
             if (config.log) {
-                result.withLogConsumer(TestContainerLogger.create(config.name));
+                result.withLogConsumer(ContainerLogger.create(config.name));
             }
 
             // environments

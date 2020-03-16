@@ -1,6 +1,5 @@
-
 /*
- * Copyright 2019 1000kit.org.
+ * Copyright 2020 tkit.org.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tkit.quarkus.test;
+package org.tkit.quarkus.test.docker;
 
 import org.testcontainers.containers.output.BaseConsumer;
 import org.testcontainers.containers.output.OutputFrame;
@@ -23,7 +22,7 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 /**
  * The system out container logger.
  */
-public class TestContainerLogger extends BaseConsumer<Slf4jLogConsumer> {
+public class ContainerLogger extends BaseConsumer<Slf4jLogConsumer> {
 
     /**
      * The line break pattern
@@ -41,8 +40,8 @@ public class TestContainerLogger extends BaseConsumer<Slf4jLogConsumer> {
      * @param prefix the logger prefix.
      * @return the system out container logger.
      */
-    public static TestContainerLogger create(String prefix) {
-        return new TestContainerLogger(prefix);
+    public static ContainerLogger create(String prefix) {
+        return new ContainerLogger(prefix);
     }
 
     /**
@@ -50,7 +49,7 @@ public class TestContainerLogger extends BaseConsumer<Slf4jLogConsumer> {
      *
      * @param prefix the logger prefix.
      */
-    private TestContainerLogger(String prefix) {
+    private ContainerLogger(String prefix) {
         this.prefix = "[" + prefix + "] ";
     }
 
