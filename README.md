@@ -9,6 +9,16 @@ tkit quarkus test extension
 [![License](https://img.shields.io/badge/license-Apache--2.0-green?style=for-the-badge&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Maven Central](https://img.shields.io/maven-central/v/org.tkit.quarkus/tkit-quarkus-test?logo=java&style=for-the-badge)](https://maven-badges.herokuapp.com/maven-central/org.tkit.quarkus/tkit-quarkus-test)
 
+Add this maven test dependency to the project.
+```xml
+<dependency>
+    <groupId>org.lorislab.quarkus</groupId>
+    <artifactId>quarkus-testcontainers</artifactId>
+    <version>1.0.0</version>
+    <scope>test</scope>
+</dependency>
+```
+
 ## DB Import
 
 If you are testing backend service you will probably want to have some test data ready. 
