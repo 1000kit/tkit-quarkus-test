@@ -12,8 +12,8 @@ tkit quarkus test extension
 Add this maven test dependency to the project.
 ```xml
 <dependency>
-    <groupId>org.lorislab.quarkus</groupId>
-    <artifactId>quarkus-testcontainers</artifactId>
+    <groupId>org.tkit.quarkus</groupId>
+    <artifactId>tkit-quarkus-test</artifactId>
     <version>1.0.0</version>
     <scope>test</scope>
 </dependency>
