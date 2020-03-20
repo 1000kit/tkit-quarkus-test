@@ -180,8 +180,8 @@ The system property `<test.integration>true</test.integration>` activate the int
 | test.Wait.forLogMessage.times=1 | `int` | `1` | the number of times the pattern is expected in the WaitStrategy |
 | test.Log=true | `boolean` | `true` | enabled log of the docker container |
 | test.priority=100 | `int` | `100` | start priority |
-| test.property.<name>=<value> | `string` | `null` | set the system property with <name> and <value> in the tests |
-| test.env.<name>=<value> | `string` | `null` | set the environment variable with <name> and <value> in the docker container |
+| test.property.{name}=<value> | `string` | `null` | set the system property with `{name}` and <value> in the tests |
+| test.env.{name}=<value> | `string` | `null` | set the environment variable with `{name}` and <value> in the docker container |
 
 The value of the test.property.* or test.env.* supported this syntax:
 * simple value: `123` result: 123
