@@ -32,7 +32,7 @@ In a @Before hook of your test method, tkit checks if a @WithDBData annotation i
 given file to the dbimport rest service.
 
 
-Add the dbimport docker image to the test containers docker-compose.yml file
+Add the dbimport docker image to the test containers docker-compose.yml/docker-compose.yaml (both extensions are supported) file
 ```yaml
   tkit-parameter-db-import:
     container_name: tkit-parameter-db-import
@@ -84,7 +84,7 @@ public void testImportData() {
 ## How to write the tests
 
 Create abstract test class which will set up the docker test environment. The default location of the docker compose file
-is `src/test/resources/docker-compose.yaml`
+is `src/test/resources/docker-compose.yml`
 
 ```java
 @QuarkusTestResource(DockerComposeTestResource.class)

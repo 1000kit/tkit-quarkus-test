@@ -21,7 +21,9 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.Network;
 import org.testcontainers.shaded.org.yaml.snakeyaml.Yaml;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,7 +42,14 @@ public class DockerTestEnvironment {
     private Network network;
 
     public DockerTestEnvironment() {
-        this(System.getProperty("test.docker.compose.file", "./src/test/resources/docker-compose.yml"));
+        String dockerComposeFilePath = System.getProperty("test.docker.compose.file", "./src/test/resources/docker-compose.yml");
+        File dockerComposeFile = new File(dockerComposeFilePath);
+
+        if (!dockerComposeFile.exists()) {
+            dockerComposeFile = new File("./src/test/resources/docker-compose.yaml");
+        }
+
+        load(dockerComposeFile);
     }
 
     public DockerTestEnvironment(String dockerComposeFile) {
