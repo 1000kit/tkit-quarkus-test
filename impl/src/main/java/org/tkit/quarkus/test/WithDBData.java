@@ -15,7 +15,11 @@
  */
 package org.tkit.quarkus.test;
 
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -25,7 +29,7 @@ import java.lang.annotation.Target;
  * 
  * If you put this annotation on class, then by default the import will be executed before 1st test in this class, and cleanup after last test. If you specify the <code>rinseAndRepeat</code> flag, then it will be executed for every test method.
  *
- * Value should be array of string representing paths to {@code .xls} files with DBUnit data or directories with {@code .csv} files, relative to maven classroot(src/test/resources|src/test/java).
+ * Value should be array of string representing paths to {@code .xls} files with DBUnit data or directories with {@code .csv} files, relative to maven class root(src/test/resources|src/test/java).
  *
  * Example: <code>@WithDBData("data/test.xls")</code> would try to find a file <code>PROJECT_ROOT/src/test/resources/data/test.xls</code> or
  * <code>PROJECT_ROOT/src/test/java/data/test.xls</code>
@@ -34,8 +38,11 @@ import java.lang.annotation.Target;
  *
  * @author mmajchra
  */
+@ExtendWith(WithDBDataExtension.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
+@Documented
+@Inherited
 public @interface WithDBData {
     
     /**

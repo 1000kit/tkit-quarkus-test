@@ -97,7 +97,7 @@ public class DockerTestEnvironment {
         priorities.forEach(p -> {
             List<DockerComposeService> services = containerProperties.get(p);
             List<String> names = services.stream().map(DockerComposeService::getName).collect(Collectors.toList());
-            System.out.println(String.format("\n------------------------------\nStart test containers\npriority: %s\nServices: %s\n------------------------------", p, names));
+            System.out.println(String.format("------------------------------\nStart test containers\npriority: %s\nServices: %s\n------------------------------", p, names));
             services.parallelStream().forEach(s -> s.start(this));
         });
     }
