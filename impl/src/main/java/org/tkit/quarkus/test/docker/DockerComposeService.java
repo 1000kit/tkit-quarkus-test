@@ -63,7 +63,7 @@ public class DockerComposeService {
         }
         // update environment variables
         Map<String, String> env = createValues(environment, config.refEnvironments);
-        log.info("Service: '{}' add test environment variables: {}", config.name, env);
+        System.out.println(String.format("[tkit-quarkus-test] Service: '%s' add test environment variables: %s", config.name, env));
         container.withEnv(env);
 
         // start container
@@ -71,7 +71,7 @@ public class DockerComposeService {
 
         // update properties
         Map<String, String> prop = createValues(environment, config.properties);
-        System.out.println("Service: '{}' update test properties: {}");
+        System.out.println(String.format("[tkit-quarkus-test] Service: '%s' update test properties: %s", config.name, prop));
         prop.forEach(System::setProperty);
     }
 
