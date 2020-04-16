@@ -31,6 +31,8 @@ public class ContainerConfig {
 
     public String name;
 
+    public String command;
+
     public boolean integrationTest = true;
 
     public boolean unitTest = true;
@@ -78,6 +80,8 @@ public class ContainerConfig {
         volumes = getMapFromList(data, "volumes", ":");
         // docker compose ports
         ports = getMapFromList(data, "ports", ":");
+        // command
+        command = (String) data.get("command");
 
         // labels
         Map<String, String> labels = getMapFromList(data, "labels", "=");
