@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
  */
 public class DockerTestEnvironment {
 
+    public static final String SYS_PROP_TEST_INTEGRATION = "test.integration";
+
     private static final Logger log = LoggerFactory.getLogger(DockerTestEnvironment.class);
 
     private Map<String, DockerComposeService> containers = new HashMap<>();
@@ -68,7 +70,7 @@ public class DockerTestEnvironment {
     public void load(File dockerComposeFile) {
         network = Network.newNetwork();
 
-        boolean integrationTest = Boolean.getBoolean("test.integration");
+        boolean integrationTest = Boolean.getBoolean(SYS_PROP_TEST_INTEGRATION);
 
         Yaml yaml = new Yaml();
 
