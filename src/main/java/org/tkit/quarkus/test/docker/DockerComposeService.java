@@ -32,7 +32,7 @@ public class DockerComposeService {
 
     private static final Logger log = LoggerFactory.getLogger(DockerComposeService.class);
 
-    private GenericContainer<?> container;
+    private TestGenericContainer container;
 
     private ContainerConfig config;
 
@@ -92,7 +92,12 @@ public class DockerComposeService {
     }
 
     public static Integer getPort(GenericContainer<?> container, int port) {
-        return container.getMappedPort(port);
+        try {
+            return container.getMappedPort(port);
+        } catch (IllegalArgumentException ex) {
+            log.warn("Using fixed port for the container {} and port {}", container.getContainerId(), port);
+            return port;
+        }
     }
 
     public String getHost() {
@@ -111,13 +116,14 @@ public class DockerComposeService {
         return "http://" + getHost(container) + ":" + getPort(container, port);
     }
 
-    private GenericContainer<?> createContainer(Network network, ContainerConfig config) {
+    private TestGenericContainer createContainer(Network network, ContainerConfig config) {
 
-        try (GenericContainer<?> result = new GenericContainer<>(config.image)) {
+        try (TestGenericContainer result = new TestGenericContainer(config.image)) {
             result.withNetwork(network).withNetworkAliases(config.name);
             // docker command
-            if (config.command != null && !config.command.isBlank()) {
-                result.withCommand(config.command);
+            if (config.command != null && !config.command.isEmpty()) {
+                String[] cmd = config.command.toArray(new String[0]);
+                result.withCommand(cmd);
             }
             // image pull policy
             switch ( config.imagePull) {
@@ -155,6 +161,9 @@ public class DockerComposeService {
 
             // ports
             config.ports.values().stream().map(Integer::parseInt).forEach(result::addExposedPort);
+            if (config.fixedPorts) {
+                config.ports.forEach((key, value) -> result.withFixedExposedPort(Integer.parseInt(key), Integer.parseInt(value)));
+            }
 
             return result;
         }

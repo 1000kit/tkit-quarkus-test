@@ -20,6 +20,7 @@ import org.tkit.quarkus.test.docker.properties.TestPropertyLoader;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ public class ContainerConfig {
 
     public String name;
 
-    public String command;
+    public List<String> command = new ArrayList<>();
 
     public boolean integrationTest = true;
 
@@ -61,6 +62,8 @@ public class ContainerConfig {
 
     public List<TestProperty> refEnvironments = new ArrayList<>();
 
+    public boolean fixedPorts = false;
+
     private ContainerConfig(String name, Map<String, Object> data) {
         this.name = name;
         load(data);
@@ -81,7 +84,13 @@ public class ContainerConfig {
         // docker compose ports
         ports = getMapFromList(data, "ports", ":");
         // command
-        command = (String) data.get("command");
+        Object cmd = data.get("command");
+        if (cmd instanceof String) {
+            command = Collections.singletonList((String) cmd);
+        } else {
+            command = getList(data, "command");
+        }
+
 
         // labels
         Map<String, String> labels = getMapFromList(data, "labels", "=");
@@ -105,6 +114,9 @@ public class ContainerConfig {
 
             // update priority
             priority = getLabelInteger(labels, "test.priority", DEFAULT_PRIORITY);
+
+            // fixed ports
+            fixedPorts = getLabelBoolean(labels, "test.ports.fixed", false);
         }
 
         // test properties store in the labels

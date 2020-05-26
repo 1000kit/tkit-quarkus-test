@@ -199,6 +199,7 @@ Unit and integration test maven plugin
 | test.priority=100 | `int` | `100` | start priority |
 | test.property.{name}={value} | `string` | `null` | set the system property with `{name}` and <value> in the tests |
 | test.env.{name}={value} | `string` | `null` | set the environment variable with `{name}` and <value> in the docker container |
+| test.ports.fixed=true | `boolean` | `false` | start container with fixed ports for the test |
 
 The value of the test.property.* or test.env.* supported this syntax:
 * simple value: `123` result: 123
