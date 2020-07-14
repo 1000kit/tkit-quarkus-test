@@ -57,12 +57,18 @@ public class DockerComposeService {
         return container;
     }
 
-    public void start(DockerTestEnvironment environment) {
+    public void start(DockerTestEnvironment environment, boolean integrationTest) {
         if (container == null) {
             return;
         }
         // update environment variables
-        Map<String, String> env = createValues(environment, config.refEnvironments);
+        List<TestProperty> te = new ArrayList<>(config.commonVariables.environments);
+        if (integrationTest) {
+            te.addAll(config.integrationVariables.environments);
+        } else {
+            te.addAll(config.unitVariables.environments);
+        }
+        Map<String, String> env = createValues(environment, te);
         System.out.println(String.format("[tkit-quarkus-test] Service: '%s' add test environment variables: %s", config.name, env));
         container.withEnv(env);
 
@@ -70,7 +76,13 @@ public class DockerComposeService {
         container.start();
 
         // update properties
-        Map<String, String> prop = createValues(environment, config.properties);
+        List<TestProperty> tp = new ArrayList<>(config.commonVariables.properties);
+        if (integrationTest) {
+            tp.addAll(config.integrationVariables.properties);
+        } else {
+            tp.addAll(config.unitVariables.properties);
+        }
+        Map<String, String> prop = createValues(environment, tp);
         System.out.println(String.format("[tkit-quarkus-test] Service: '%s' update test properties: %s", config.name, prop));
         prop.forEach(System::setProperty);
     }
@@ -79,9 +91,15 @@ public class DockerComposeService {
         return properties.stream().collect(Collectors.toMap(p -> p.name, p -> p.getValue(environment)));
     }
 
-    public void stop() {
+    public void stop(boolean integrationTest) {
         // clear system properties
-        config.properties.forEach(p -> System.clearProperty(p.name));
+        List<TestProperty> tp = new ArrayList<>(config.commonVariables.properties);
+        if (integrationTest) {
+            tp.addAll(config.integrationVariables.properties);
+        } else {
+            tp.addAll(config.unitVariables.properties);
+        }
+        tp.forEach(p -> System.clearProperty(p.name));
 
         // stop container
         container.stop();

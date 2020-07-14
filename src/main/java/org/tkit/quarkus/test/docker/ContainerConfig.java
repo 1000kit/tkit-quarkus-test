@@ -58,13 +58,15 @@ public class ContainerConfig {
 
     public Map<String, String> ports;
 
-    public List<TestProperty> properties = new ArrayList<>();
+    public Variables commonVariables = new Variables("test.property.", "test.env.");
 
-    public List<TestProperty> refEnvironments = new ArrayList<>();
+    public Variables unitVariables = new Variables("test.unit.property.", "test.unit.env.");
+
+    public Variables integrationVariables = new Variables("test.integration.property.", "test.integration.env.");
 
     public boolean fixedPorts = false;
 
-    private ContainerConfig(String name, Map<String, Object> data) {
+    ContainerConfig(String name, Map<String, Object> data) {
         this.name = name;
         load(data);
     }
@@ -121,14 +123,13 @@ public class ContainerConfig {
 
         // test properties store in the labels
         labels.forEach((k, v) -> {
-            if (k.startsWith("test.property")) {
-                String key = k.substring("test.property.".length());
-                properties.add(TestPropertyLoader.createTestProperty(key, v));
-            } else if (k.startsWith("test.env.")) {
-                String key = k.substring("test.env.".length());
-                refEnvironments.add(TestPropertyLoader.createTestProperty(key, v));
+            if (!commonVariables.readVariable(k,v)) {
+                if (!unitVariables.readVariable(k,v)) {
+                    integrationVariables.readVariable(k,v);
+                }
             }
         });
+
     }
 
 
@@ -178,5 +179,35 @@ public class ContainerConfig {
         ALWAYS,
 
         MAX_AGE
+    }
+
+    public static class Variables {
+
+        public String propertyPrefix;
+
+        public List<TestProperty> properties = new ArrayList<>();
+
+        public String envPrefix;
+
+        public List<TestProperty> environments = new ArrayList<>();
+
+        public Variables(String pf, String ep) {
+            propertyPrefix = pf;
+            envPrefix = ep;
+        }
+
+        public boolean readVariable(String key, String value) {
+            if (key.startsWith(propertyPrefix)) {
+                String k = key.substring(propertyPrefix.length());
+                properties.add(TestPropertyLoader.createTestProperty(k, value));
+                return true;
+            }
+            if (key.startsWith(envPrefix)) {
+                String k = key.substring(envPrefix.length());
+                environments.add(TestPropertyLoader.createTestProperty(k, value));
+                return true;
+            }
+            return false;
+        }
     }
 }
