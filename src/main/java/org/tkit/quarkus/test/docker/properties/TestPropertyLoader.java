@@ -17,6 +17,7 @@
 package org.tkit.quarkus.test.docker.properties;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class TestPropertyLoader {
             return TestValueProperty.createTestProperty(key,value);
         }
         if (matches.size() == 1) {
-            return createTestPropertyInstance(key, matches.get(0));
+            return TestGroupProperty.createTestProperty(key, replaceAll(value), List.of(createTestPropertyInstance("group", matches.get(0))));
         }
         List<TestProperty> testProperties = matches.stream()
                 .map(v -> createTestPropertyInstance("group", v))

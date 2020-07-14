@@ -14,7 +14,7 @@ Add this maven test dependency to the project.
 <dependency>
     <groupId>org.tkit.quarkus</groupId>
     <artifactId>tkit-quarkus-test</artifactId>
-    <version>1.5.0</version>
+    <version>1.7.0</version>
     <scope>test</scope>
 </dependency>
 ```

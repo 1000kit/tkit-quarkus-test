@@ -36,7 +36,7 @@ public class DockerComposeService {
 
     private ContainerConfig config;
 
-    private DockerComposeService(Network network, ContainerConfig config) {
+    protected DockerComposeService(Network network, ContainerConfig config) {
         this.config = config;
         this.container = createContainer(network, config);
     }
@@ -116,7 +116,7 @@ public class DockerComposeService {
         return "http://" + getHost(container) + ":" + getPort(container, port);
     }
 
-    private TestGenericContainer createContainer(Network network, ContainerConfig config) {
+    protected TestGenericContainer createContainer(Network network, ContainerConfig config) {
 
         try (TestGenericContainer result = new TestGenericContainer(config.image)) {
             result.withNetwork(network).withNetworkAliases(config.name);
