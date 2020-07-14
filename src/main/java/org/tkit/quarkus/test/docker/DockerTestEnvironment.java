@@ -100,16 +100,22 @@ public class DockerTestEnvironment {
         List<Integer> priorities = new ArrayList<>(containerProperties.keySet());
         Collections.sort(priorities);
 
+        // integration tests
+        boolean integrationTest = Boolean.getBoolean(SYS_PROP_TEST_INTEGRATION);
+
         priorities.forEach(p -> {
             List<DockerComposeService> services = containerProperties.get(p);
             List<String> names = services.stream().map(DockerComposeService::getName).collect(Collectors.toList());
-            System.out.println(String.format("------------------------------\nStart test containers\npriority: %s\nServices: %s\n------------------------------", p, names));
-            services.parallelStream().forEach(s -> s.start(this));
+            System.out.println(String.format("------------------------------\nStart test containers\npriority: %s\nServices: %s\nintegration test: %s\n------------------------------", p, names, integrationTest));
+            services.parallelStream().forEach(s -> s.start(this, integrationTest));
         });
     }
 
     public void stop() {
-        containers.values().parallelStream().forEach(DockerComposeService::stop);
+        // integration tests
+        boolean integrationTest = Boolean.getBoolean(SYS_PROP_TEST_INTEGRATION);
+
+        containers.values().parallelStream().forEach(p -> p.stop(integrationTest));
     }
 
 }
