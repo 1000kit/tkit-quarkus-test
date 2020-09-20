@@ -46,7 +46,7 @@
     </developers>
 
     <properties>
-        <quarkus.version>1.7.2.Final</quarkus.version>
+        <quarkus.version>1.8.1.Final</quarkus.version>
         <junit.version>5.6.0</junit.version>
         <testcontainers.version>1.13.0</testcontainers.version>
 
