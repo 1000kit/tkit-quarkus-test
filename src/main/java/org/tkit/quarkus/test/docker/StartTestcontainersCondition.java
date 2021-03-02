@@ -59,10 +59,11 @@ public class StartTestcontainersCondition implements ExecutionCondition {
                 }
 
                 TestResourceManager testResourceManager = new TestResourceManager(context.getRequiredTestClass());
-                state = createState(testResourceManager);
-                store.put(NativeTestExtension.ExtensionState.class.getName(), state);
-
                 Map<String, String> systemProps = testResourceManager.start();
+
+                state = createState(testResourceManager, systemProps);
+                store.put(NativeTestExtension.ExtensionState.class.getName(), state);
+                
                 if (systemProps != null) {
                     systemProps.forEach(System::setProperty);
                 }
@@ -72,13 +73,13 @@ public class StartTestcontainersCondition implements ExecutionCondition {
         return ENABLED;
     }
 
-    public static NativeTestExtension.ExtensionState createState(TestResourceManager testResourceManager) {
+    public static NativeTestExtension.ExtensionState createState(TestResourceManager testResourceManager, Map<String, String> systemProps) {
         try {
             Closeable closable = () -> {
             };
             Constructor<?> constructor = NativeTestExtension.ExtensionState.class.getDeclaredConstructors()[0];
             constructor.setAccessible(true);
-            return (NativeTestExtension.ExtensionState) constructor.newInstance(new NativeTestExtension(), testResourceManager, closable, false);
+            return (NativeTestExtension.ExtensionState) constructor.newInstance(new NativeTestExtension(), testResourceManager, closable, systemProps);
         } catch (Exception ex) {
             throw new IllegalStateException("Error create state", ex);
         }
