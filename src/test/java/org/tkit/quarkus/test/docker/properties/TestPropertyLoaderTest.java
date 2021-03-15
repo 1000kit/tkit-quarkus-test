@@ -8,6 +8,9 @@ import org.tkit.quarkus.test.docker.DockerComposeService;
 import org.tkit.quarkus.test.docker.DockerTestEnvironment;
 import org.tkit.quarkus.test.docker.TestGenericContainer;
 
+import java.io.File;
+import java.nio.file.Path;
+
 public class TestPropertyLoaderTest {
 
     @Test
@@ -15,13 +18,13 @@ public class TestPropertyLoaderTest {
         DockerTestEnvironment de = new DockerTestEnvironment() {
             @Override
             public DockerComposeService getService(String name) {
-                return new DockerComposeService(null, null) {
+                return new DockerComposeService(null, null, null) {
                     @Override
                     public String getHost() {
                         return "DUMMY";
                     }
                     @Override
-                    protected TestGenericContainer createContainer(Network network, ContainerConfig config) {
+                    protected TestGenericContainer createContainer(Network network, ContainerConfig config, Path dir) {
                         return null;
                     }
                 };

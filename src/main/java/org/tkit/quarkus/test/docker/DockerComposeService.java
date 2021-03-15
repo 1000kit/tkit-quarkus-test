@@ -25,6 +25,10 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.PullPolicy;
 import org.testcontainers.utility.MountableFile;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,13 +40,13 @@ public class DockerComposeService {
 
     private ContainerConfig config;
 
-    protected DockerComposeService(Network network, ContainerConfig config) {
+    protected DockerComposeService(Network network, ContainerConfig config, Path dir) {
         this.config = config;
-        this.container = createContainer(network, config);
+        this.container = createContainer(network, config, dir);
     }
 
-    public static DockerComposeService createDockerComposeService(Network network, ContainerConfig config) {
-        return new DockerComposeService(network, config);
+    public static DockerComposeService createDockerComposeService(Network network, ContainerConfig config, Path dir) {
+        return new DockerComposeService(network, config, dir);
     }
 
     public String getName() {
@@ -134,7 +138,7 @@ public class DockerComposeService {
         return "http://" + getHost(container) + ":" + getPort(container, port);
     }
 
-    protected TestGenericContainer createContainer(Network network, ContainerConfig config) {
+    protected TestGenericContainer createContainer(Network network, ContainerConfig config, Path dir) {
 
         try (TestGenericContainer result = new TestGenericContainer(config.image)) {
             result.withNetwork(network).withNetworkAliases(config.name);
@@ -174,7 +178,30 @@ public class DockerComposeService {
                 if (key.startsWith("./")) {
                     key = key.substring(1);
                 }
-                result.withCopyFileToContainer(MountableFile.forClasspathResource(key), v);
+                MountableFile mf;
+                try {
+                    mf = MountableFile.forClasspathResource(key);
+                    System.out.printf("[tkit-quarkus-test] Service: '%s' find volume path in classpath: %s%n", config.name, key);
+                } catch (Exception ex) {
+                    System.err.printf("[tkit-quarkus-test] Service: '%s' could not find volume path in classpath: %s%n", config.name, key);
+
+                    Path path = Paths.get(k);
+                    if (!Files.exists(path)) {
+                        // check path relative to the compose file
+                        Path p1 = dir.resolve(k);
+                        if (Files.exists(p1)) {
+                            path = p1;
+                        }
+                    }
+                    if (!Files.exists(path)) {
+                        System.err.printf("[tkit-quarkus-test] Service: '%s' could not find volume path in system: %s%n", config.name, k);
+                        throw new RuntimeException("Missing volume resources " + v);
+                    }
+                    mf = MountableFile.forHostPath(path);
+                    System.err.printf("[tkit-quarkus-test] Service: '%s' find volume path `%s` in system `%s`%n", config.name, k,path);
+                }
+
+                result.withCopyFileToContainer(mf, v);
             });
 
             // ports

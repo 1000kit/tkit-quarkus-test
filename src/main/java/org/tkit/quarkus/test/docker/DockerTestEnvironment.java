@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -74,6 +75,7 @@ public class DockerTestEnvironment {
 
         Yaml yaml = new Yaml();
 
+        Path dir = dockerComposeFile.toPath().getParent();
         try (InputStream fileInputStream = Files.newInputStream(dockerComposeFile.toPath())) {
             Map<String, Object> map = yaml.load(fileInputStream);
             Object services = map.get("services");
@@ -82,7 +84,7 @@ public class DockerTestEnvironment {
                 data.forEach((k, v) -> {
                     ContainerConfig config = ContainerConfig.createContainerProperties(k, (Map<String, Object>) v);
                     if ((integrationTest && config.integrationTest) || (!integrationTest && config.unitTest)) {
-                        DockerComposeService service = DockerComposeService.createDockerComposeService(network, config);
+                        DockerComposeService service = DockerComposeService.createDockerComposeService(network, config, dir);
                         containerProperties.computeIfAbsent(service.getConfig().priority, x -> new ArrayList<>()).add(service);
                         containers.put(k, service);
                     }
