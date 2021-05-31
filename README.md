@@ -14,10 +14,11 @@ Add this maven test dependency to the project.
 <dependency>
     <groupId>org.tkit.quarkus</groupId>
     <artifactId>tkit-quarkus-test</artifactId>
-    <version>1.7.0</version>
+    <version>X.X.X</version>
     <scope>test</scope>
 </dependency>
 ```
+For current version see maven-central banner.
 
 ## DB Import
 
