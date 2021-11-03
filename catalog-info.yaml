@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: tkit-quarkus-test
+  description: Quarkus extension for containerized tests(real services using test containers)
+  tags:
+    - java
+    - quarkus
+    - text
+    - extension
+    - docker
+spec:
+  type: library
+  lifecycle: production
+  owner: 1000kit
+  system: 1000kit-quarkus-libs
+
