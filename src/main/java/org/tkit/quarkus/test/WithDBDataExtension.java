@@ -137,7 +137,9 @@ public class WithDBDataExtension implements BeforeTestExecutionCallback, AfterTe
                 URL fileUrl = this.getClass().getClassLoader().getResource(path);
                 if (fileUrl != null) {
                     log.info("Truncate data via DBImport file {}", fileUrl);
-                    if (isExcel(path)) {
+                    if (isXml(path)) {
+                        deleteXmlData(fileUrl);
+                    } else if (isExcel(path)) {
                         deleteExcelData(fileUrl);
                     } else if (isCsv(path)) {
                         deleteCsvData(fileUrl);
@@ -184,6 +186,21 @@ public class WithDBDataExtension implements BeforeTestExecutionCallback, AfterTe
     }
 
     /**
+     * Delete data from the database base on the xml table.
+     *
+     * @param fileUrl the file URL.
+     */
+    public static void deleteXmlData(URL fileUrl) {
+        RestAssured.given().spec(requestSpecification())
+                .contentType("application/xml")
+                .body(createFile(fileUrl))
+                .log().ifValidationFails()
+                .when()
+                .post("db/teardown/xml")
+                .then().statusCode(200);
+    }
+
+    /**
      * Imports all data defined in the annotation.
      *
      * @param an the with db data annotation.
@@ -194,7 +211,10 @@ public class WithDBDataExtension implements BeforeTestExecutionCallback, AfterTe
             URL fileUrl = this.getClass().getClassLoader().getResource(path);
             if (fileUrl != null) {
                 log.info("[DB-IMPORT] Importing data via DBImport file {}", fileUrl);
-                if (isExcel(path)) {
+                if (isXml(path)) {
+                    importXmlData(fileUrl, an.deleteBeforeInsert());
+                    log.info("[DB-IMPORT] Imported XML {} datasource {}", this.getClass().getSimpleName(), path);
+                } else if (isExcel(path)) {
                     importExcelData(fileUrl, an.deleteBeforeInsert());
                     log.info("[DB-IMPORT] Imported Excel {} datasource {}", this.getClass().getSimpleName(), path);
                 } else if (isCsv(path)) {
@@ -238,6 +258,10 @@ public class WithDBDataExtension implements BeforeTestExecutionCallback, AfterTe
         return path != null && (path.endsWith(".xls") || path.endsWith(".xlsx"));
     }
 
+    public static boolean isXml(String path) {
+        return path != null && path.endsWith(".xml");
+    }
+
     /**
      * Imports the Excel data from the URL.
      *
@@ -252,6 +276,24 @@ public class WithDBDataExtension implements BeforeTestExecutionCallback, AfterTe
                 .queryParam("cleanBefore", deleteBeforeInsert)
                 .when()
                 .post("db/import/excel")
+                .prettyPeek()
+                .then().statusCode(200);
+    }
+
+    /**
+     * Imports the Excel data from the URL.
+     *
+     * @param fileUrl            the file URL.
+     * @param deleteBeforeInsert delete before insert flag.
+     */
+    public static void importXmlData(URL fileUrl, boolean deleteBeforeInsert) {
+        RestAssured.given().spec(requestSpecification())
+                .contentType("application/xml")
+                .body(createFile(fileUrl))
+                .log().all()
+                .queryParam("cleanBefore", deleteBeforeInsert)
+                .when()
+                .post("db/import/xml")
                 .prettyPeek()
                 .then().statusCode(200);
     }
