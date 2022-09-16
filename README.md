@@ -2,12 +2,13 @@
 
 Quarkus versions:
 * Tested with Quarkus 1.3.0.Final.
-* For Quarkus 1.2.1.Final or older use [0.x version](https://gitlab.com/1000kit/quarkus/tkit-quarkus-test/-/tree/0.x)
+* For Quarkus 1.2.1.Final or older use [0.x version](https://github.com/1000kit/tkit-quarkus-test/tree/0.x)
 
 tkit quarkus test extension
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-green?style=for-the-badge&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Maven Central](https://img.shields.io/maven-central/v/org.tkit.quarkus/tkit-quarkus-test?logo=java&style=for-the-badge)](https://maven-badges.herokuapp.com/maven-central/org.tkit.quarkus/tkit-quarkus-test)
+[![GitHub Actions Status](<https://img.shields.io/github/workflow/status/1000kit/tkit-quarkus-test/build?logo=GitHub&style=for-the-badge>)](https://github.com/1000kit/tkit-quarkus-test/actions/workflows/build.yml)
 
 Add this maven test dependency to the project.
 ```xml
