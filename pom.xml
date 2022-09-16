@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
 
     <description>tkit test quarkus extension</description>
-    <url>https://gitlab.com/1000kit/quarkus/tkit-quarkus-test</url>
+    <url>https://github.com/1000kit/tkit-quarkus-test</url>
 
     <licenses>
         <license>
@@ -22,9 +22,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://gitlab.com/1000kit/quarkus/tkit-quarkus-test.git</connection>
-        <developerConnection>scm:git:git@gitlab.com:1000kit/quarkus/tkit-quarkus-test.git</developerConnection>
-        <url>https://gitlab.com/1000kit/quarkus/tkit-quarkus-test</url>
+        <connection>scm:git:git@github.com:1000kit/tkit-quarkus-test.git</connection>
+        <developerConnection>scm:git:git@github.com:1000kit/tkit-quarkus-test.git</developerConnection>
+        <url>https://github.com/1000kit/tkit-quarkus-test.git</url>
     </scm>
 
     <organization>
