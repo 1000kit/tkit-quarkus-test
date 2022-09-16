@@ -58,7 +58,7 @@
          <semver.release-plugin.version>0.7.0</semver.release-plugin.version>
          <compiler-plugin.version>3.8.1</compiler-plugin.version>
          <jandex-plugin.version>1.0.8</jandex-plugin.version>
-         <nexus.staging-plugin.version>1.6.8</nexus.staging-plugin.version>
+         <nexus.staging-plugin.version>1.6.13</nexus.staging-plugin.version>
          <source-plugin.version>3.2.0</source-plugin.version>
          <javadoc-plugin.version>3.2.0</javadoc-plugin.version>
          <gpg-plugin.version>1.6</gpg-plugin.version>
